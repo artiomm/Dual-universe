@@ -1,0 +1,112 @@
+gyro.activate()
+--screen.setCenteredText("Hello")
+local r=0
+local p=0
+local s=0
+local a=0
+local b=0
+local af=0
+local sf=0
+local aft=0
+local sft=0
+local atmo=0
+system.showScreen(1)
+
+--json.decode(atmofueltank[i].getData()).percentage
+function up()
+atmo=atmofueltank_1.getData()
+af=json.decode(atmofueltank_1.getData()).percentage
+aft=json.decode(atmofueltank_1.getData()).timeLeft 
+    if aft~="n/a" then
+        if aft<3600 then
+        aft=string.format ("%0.2f", (aft/60)).."min"
+        elseif aft<86400 then
+        aft=string.format ("%0.2f", (aft/60/60)).."h" 
+        else
+        aft=string.format ("%0.2f", (aft/60/60/24)).."d"        
+        end   
+    end    
+sf=json.decode(spacefueltank_1.getData()).percentage 
+sft=json.decode(spacefueltank_1.getData()).timeLeft 
+    if sft~="n/a" then
+        if sft<3600 then
+        sft=string.format ("%0.2f", (sft/60)).."min"
+        elseif sft<86400 then
+        sft=string.format ("%0.2f", (sft/60/60)).."h" 
+        else
+        sft=string.format ("%0.2f", (sft/60/60/24)).."d"        
+        end   
+    end    
+r=gyro.getRoll()
+    r=string.format ("%0.2f", r)
+p=gyro.getPitch()
+    p=string.format ("%0.2f", p)
+s=core.getVelocity()
+    s=(vec3(s):len()*18/5)
+    if s>10000 then
+    s=string.format("%0.1f", (s/200)).."su/h"
+    else
+    s=string.format("%0.1f", s).."km/h"
+--      s=string.format("%0.1f", (vec3(s):len()*18/5)).."km/h"
+    end
+a=core.getAltitude()
+b=a  
+   if b~=0 then 
+     if a<1000 then 
+        a="Alt: "..string.format("%0.2f", a).."m" else a="Alt: "..string.format("%0.2f", a/1000).."km"
+     end    
+     sc1=[[    
+           <svg style="stroke:#7affff; position:absolute; top:295px; left:720px; stroke-width:2;" height="500" width="500">
+           <line x1="195" y1="]]..250+(p*10)..[[" x2="285" y2="]]..250-(-p*10)..[["/>  
+           </svg> 
+           <div style="color:#7affff; font-size:30px; position:absolute; top:525px; left:764px; transform:rotate(]]..r..[[deg)"/>------------------------------------</div>
+         ]]
+   else 
+        a=""
+        sc1=""
+   end     
+end
+
+function gr()
+    
+sc=
+"<p>"..atmo.."</p>".. --debug    
+    [[
+<style>
+    table {border-collapse:collapse;}
+    td {text-align: left;}
+    p {color:#7affff; font-size:20px; background-color:rgba(53,77,115,0.5); text-align:left;}    
+</style>    
+
+       
+
+    
+    
+<table style="position:absolute; top:500px; left:640px;">
+<tr><td style="width:150px;"><table><tr><td><p>Af: ]]..af..[[%</p></td></tr></table></td><td style="width:400px;">
+<table>
+<tr>
+<td><table><tr><td><p>Pitch: ]]..p..[[</p></td></tr></table></td><th style="width:50px;"></th><td><table><tr><td><p>]]..--[[TOP R--]][[</p></td></tr></table></td>
+</tr>
+</table>
+</td><td><table><tr><td><p>Sf: ]]..sf..[[%</p></td></tr></table>
+</td></tr>
+
+<tr style="height:25px;"></tr>
+
+<tr><td><table><tr><td><p>Left-:<br>]]..aft..[[</p></td></tr></table></td><td style="width:300px;">
+<table>
+<tr>
+<td><table><tr><td><p>Spd: ]]..s..[[</p></td></tr></table></td><th style="width:50px;"></th><td><table><tr><td><p>]]..a..[[</p></td></tr></table></td>
+</tr>
+</table>
+</td><td><table><tr><td><p>Left:<br>]]..sft..[[</p></td></tr></table>
+</td></tr>
+<table>
+    
+     
+    ]]
+system.setScreen(sc..sc1)
+end
+
+unit.setTimer("tim", 1/10)
